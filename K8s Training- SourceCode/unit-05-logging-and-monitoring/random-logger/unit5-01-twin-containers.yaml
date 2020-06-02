@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: twin
+  labels:
+    app: twin
+spec:
+  containers:
+    - name: container-a
+      image: chentex/random-logger
+    - name: container-b
+      image: chentex/random-logger

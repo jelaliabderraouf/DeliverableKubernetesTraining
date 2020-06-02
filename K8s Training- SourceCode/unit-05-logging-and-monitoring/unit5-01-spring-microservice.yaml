@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  generation: 1
+  labels:
+    app: microservice
+  name: microservice
+#  namespace: microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: microservice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "7070"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+      - name: microservice
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx256m -Xms256m
+        image: mromdhani/my-monitoring-app:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 7070
+          protocol: TCP
+        resources:
+          limits:
+            memory: 294Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 7070
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /actuator/health
+            port: 7070
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5

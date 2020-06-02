@@ -1,0 +1,45 @@
+kubectl cluster-info
+
+kubectl version --short
+
+kubectl get nodes
+
+kubectl get namespaces
+
+minikube start --vm-driver=hyperv  --kubernetes-version=v1.17.1
+
+
+minikube status
+
+minikube stop
+
+
+minikube delete
+
+kubectl config get-contexts
+
+kubectl config use-context docker-desktop
+
+kubectl config view
+
+kubectl config view -o jsonpath='{.users[*].name}' 
+
+kubectl config get-contexts 
+
+kubectl config current-context 
+
+kubectl create deployment hello-kubernetes --image=dockercloud/hello-world
+
+kubectl get deployments
+
+kubectl get pods
+
+kubectl expose deployment hello-kubernetes --type=LoadBalancer --port=8080 --target-port=80
+
+kubectl get services
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+kubectl proxy
+
+kubectl -n kubernetes-dashboard describe secret default
