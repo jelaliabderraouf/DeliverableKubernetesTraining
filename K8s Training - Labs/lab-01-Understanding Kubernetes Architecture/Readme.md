@@ -292,4 +292,4 @@ The dashboard UI is then displayed
 
 - Optional Instalation : Install the Azure CLI. It is provided in training tools. You can also download it from <https://aka.ms/installazurecliwindows>. Its installation process is straighforward. This installation is optional because you Azure provides an Azure Cloud cloud that has `kubetcl` and allthe required tooling. 
    
--  Walk through this guided quichstart tutorial : [Quickstart: Deploy an Azure Kubernetes Service cluster using the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?view=azure-cli-latest). At the end, you should be familiar to work with the Azure Kubernetes (AKS) and able to deploy applications on AKS.   
+-  Walk through this guided quichstart tutorial : [Quickstart: Deploy an Azure Kubernetes Service cluster using the Azure CLI](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough). At the end, you should be familiar to work with the Azure Kubernetes (AKS) and able to deploy applications on AKS.   
