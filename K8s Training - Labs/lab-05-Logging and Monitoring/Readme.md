@@ -185,6 +185,10 @@ The dashboard UI is then displayed
 
 [Metrics Server](https://github.com/kubernetes-sigs/metrics-server) collects resource metrics from Kubelets and exposes them in Kubernetes apiserver through Metrics API for autoscaling puposes.  Metrics Server isn't installed by default with Docker Desktop. Follow these steps to install it and configure it.
 
+**You will find in the end of this lab a HOW-TO explaining how to install Metrics-server using Helm3. The fixed values files is provided in the current folder.**
+
+The following instructions are for the manual installation approach.
+
 1. Clone or download the release branch of Metrics Server project. Here is the link : <https://codeload.github.com/kubernetes-sigs/metrics-server/zip/release-0.3>. You can also use the provided version for metrics version. 
 
 2. Open the `deploy/1.8+/metrics-server-deployment.yaml` file in an editor and perform the following changes.
@@ -490,3 +494,66 @@ As previously said, Grafana has a ton of pre-built dashboards. Import a new dash
 
 Input the URL for the dashboard, select "Already created Prometheus datasource" and then click Import:
 ![grafana](images/grafanafinaldasboard.png)
+
+
+**HOW-TO Install Metrics-Server using Helm 3**
+
+- If Metric-server is not installed, the followin top doaes not work. we will recheck it once Metrics-server is installed.
+  
+  ```shell
+  kubectl top nodes
+  ```
+- Add Kubernetes charts repo to the local repos
+   
+  ```shell
+  helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+  helm repo update
+  ```
+
+- List the repos
+
+  ```shell
+  helm repo list
+  ```
+- Search for the chart
+  
+  ```
+  helm search repo metrics-server
+  ```
+- Save localally the values
+
+  ```shell
+  helm show values stable/metrics-server  >my-metrics.values
+  ```
+Open `my-metrics.values` and perform  the following two changes:
+
+  1-Change hostNetwork enabled to **true**
+
+    ```shell
+    > hostNetwork 
+        change enabled : true 
+    ```
+  2- Activate `kubelet-insecure-tls`
+  args Remove empty brackets [] and uncomment `kubelet-insecure-tls` line
+
+    ```shell
+    - -- kubelet-insecure-tls
+    ```	
+
+- Install the metrics-servicer using the updated values
+
+  ```shell
+  helm install my-metrics-server stable/metrics-server --values my-metrics.values
+  ```
+
+- Check that metrics server is running by issuing 
+
+  ```shell
+  kubectl top nodes
+  ```
+
+- For uninstalling, user
+
+  ```shell
+  helm uninstall my-metrics-server
+  ```

@@ -64,7 +64,27 @@ With these concepts in mind, we can now explain Helm like this:
 
 > Helm installs **charts** into Kubernetes, creating a new **release** for each installation. And to find new charts, you can search Helm chart **repositories**.
 
+### Initialize Helm Charts
 
+Charts are the packaging format used in Helm. A Chart is a collection of multiple files, folders, and templates to define multiple Kubernetes resources. Templates are the Kubernetes resource definitions and you can use the same chart for multiple different releases by injecting your dynamic values to the template. 
+
+You can initialize the Helm chart repository with the official Helm chart repository or with any other repository by adding various Helm chart repository available:
+
+```shell
+$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+```
+
+You can update the above repo for changes by using:
+
+```shell
+$ helm repo update
+```
+You can list down all the stable charts available in above repository by using below command, you can use any chart from them as base chart:
+
+
+```shell
+$ helm search repo stable
+```
 
 ### Helm search: Finding charts
 Helm comes with a powerful search command. It can be used to search two different types of source:
@@ -365,3 +385,116 @@ data:
 Using `--dry-run` will make it easier to test your code, but it won’t ensure that Kubernetes itself will accept the templates you generate. It’s best not to assume that your chart will install just because `--dry-run` works.
 
 In this Helm Template Guide, we take the basic chart we defined here and explore the Helm template language in detail. And we'l get started with built-in objects.
+
+
+### Applications
+
+#### Install tomcat using Helm 3 by pullin locally its Chart
+
+- Add Kubernetes charts repo to the local repos 
+```shell
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo update
+```
+- Search for Tomcat chart
+```shell
+ helm search repo tomcat  
+```
+
+- Navigate to your local Filesystem and create the folder where yan want to pull the chart (let's suppose it the  `tmp` folder)
+
+- Pull and untar the chart
+
+```shell
+helm pull stable/tomcat --untar
+```
+
+- Modify the values if you want, then install the chart
+  
+```shell
+  helm install my-tomcat  .
+```
+
+- Uninstall  
+```shell
+  helm uninstall my-tomcat  
+```
+
+#### Install Mysql
+
+- Search for MySQL chart
+```shell
+ helm search repo mysql  
+```
+- Show the values
+
+```shell
+helm show values stable/mysql
+```
+- Install the chart
+```
+helm install  my-mysql --set mysqlPassword=admin,mysqlUser=admin stable/mysql
+```
+
+- Unistall the chart
+  
+  - Install the chart
+```
+helm uninstall  my-mysql
+```
+
+#### Install Metrics-server
+
+- If Metric-server is not installed, the followin top doaes not work. we will recheck it once Metrics-server is installed.
+  
+  ```shell
+  kubectl top nodes
+  ```
+- Add Kubernetes charts repo to the local repos
+   
+  ```shell
+  helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+  helm repo update
+  ```
+
+- List the repos
+
+  ```shell
+  helm repo list
+  ```
+- Search for the chart
+  
+  ```
+  helm search repo metrics-server
+  ```
+- Save localally the values
+
+  ```shell
+  helm show values stable/metrics-server  >my-metrics.values
+  ```
+Open `my-metrics.values` and perform  the following two changes:
+
+  1-Change hostNetwork enabled to **true**
+
+    ```shell
+    > hostNetwork 
+        change enabled : true 
+    ```
+  2- Activate `kubelet-insecure-tls`
+  args Remove empty brackets [] and uncomment `kubelet-insecure-tls` line
+
+    ```shell
+    - -- kubelet-insecure-tls
+    ```	
+
+- Install the metrics-servicer using the updated values
+
+  ```shell
+  helm install my-metrics-server stable/metrics-server --values my-metrics.values
+  ```
+
+- Check that metrics server is running by issuing 
+
+  ```shell
+  kubectl top nodes
+  ```
