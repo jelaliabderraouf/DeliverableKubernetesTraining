@@ -16,7 +16,8 @@ Windows Registry Editor Version 5.00
 
 
 
-Linux (https://ahmet.im/blog/kubectl-aliases/, https://awesomeopensource.com/project/ahmetb/kubectl-aliases)
+Linux
+ (https://ahmet.im/blog/kubectl-aliases/, https://awesomeopensource.com/project/ahmetb/kubectl-aliases)
   - In your HOME directory, create a file .kubectl_aliases and initialize it with the following aliases definitions. A complete list is given here : https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases.
   - edit your .bashrc/.zshrc file with:
     [ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
