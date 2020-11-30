@@ -1,1 +1,0 @@
-https://github.com/cmderdev/cmder/releases/download/v1.3.14/cmder.7z

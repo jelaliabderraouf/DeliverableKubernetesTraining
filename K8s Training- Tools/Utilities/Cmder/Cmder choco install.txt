@@ -1,0 +1,13 @@
+choco install cmder -y
+
+
+	Add Cmder to right click context menu
+	======================================
+
+	 > cd /tools/cmder
+	 > ./Cmder.exe /REGISTER ALL
+
+	Add Cmder to be searchable via search
+	=====================================
+	 - Right click Cmder.exe, click "Create shortcut"
+	 - Move the shortcut to "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"

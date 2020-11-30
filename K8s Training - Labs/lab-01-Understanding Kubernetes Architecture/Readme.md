@@ -1,8 +1,8 @@
 # Lab 01- Understanding the Kubernetes Architecture
 ---
 
-- [Step 1 - Installing  Kubernetes](#step-1---installing-kubernetes)
-  - [1.1 -  Installing Kubernetes Locally Using Docker Desktop for Windows](#11---installing-kubernetes-locally-using-docker-desktop-for-windows)
+- [Step 1 - Installing  Kubernetes](#step-1---installing--kubernetes)
+  - [1.1 -  Installing Kubernetes Locally Using Docker Desktop for Windows](#11----installing-kubernetes-locally-using-docker-desktop-for-windows)
   - [1.2 - Installing Kubernetes Locally Using Minikube](#12---installing-kubernetes-locally-using-minikube)
     - [_Install kubectl_](#install-kubectl)
     - [_Install Minikube_](#install-minikube)
@@ -12,11 +12,16 @@
 - [Step 3: Deploying your first application](#step-3-deploying-your-first-application)
     - [Create a Deployment](#create-a-deployment)
     - [Create a Service](#create-a-service)
+    - [Scale the application](#scale-the-application)
 - [Step 4 - Deploying the Kubernetes Dashboard Application](#step-4---deploying-the-kubernetes-dashboard-application)
     - [Deploying the Dashboard UI](#deploying-the-dashboard-ui)
     - [Accessing the Dashboard UI](#accessing-the-dashboard-ui)
-- [Step 5 - Getting Started with Azure Kubernetes Service (AKS)](#step-5---getting-started-with-azure-kubernetes-service-aks)
-    - [Register your Microsoft Azure  Pass](#register-your-microsoft-azure-pass)
+- [Step 5 - Building a local multi-nodes cluster using VirtualBox and Vagrant](#step-5---building-a-local-multi-nodes-cluster-using-virtualbox-and-vagrant)
+    - [Prerequisites](#prerequisites)
+    - [Bringing Up The cluster](#bringing-up-the-cluster)
+    - [Useful Vagrant commands](#useful-vagrant-commands)
+- [Step 6 - Getting Started with Azure Kubernetes Service (AKS)](#step-6---getting-started-with-azure-kubernetes-service-aks)
+    - [Register your Microsoft Azure Pass](#register-your-microsoft-azure-pass)
     - [Get started with Azure Kubernets Service (AKS)](#get-started-with-azure-kubernets-service-aks)
 
 
@@ -128,11 +133,8 @@ Now you have two local clustors available on your laptop/desktop : the Docker De
 kubectl config get-contexts
 CURRENT   NAME                 CLUSTER          AUTHINFO         NAMESPACE
 *         docker-desktop       docker-desktop   docker-desktop
-          docker-for-desktop   docker-desktop   docker-desktop
           minikube             minikube         minikube
 ```
-
-  > Note : You notice that the **docker-desktop** duplicated. Both of `docker-for-desktop`  and `docker-desktop` point to the same context (See %USERPROFILE%\.kube\config). `docker-for-desktop` is the legacy name, it was changed to `docker-desktop`. You can delete the `docker-for-desktop`.
 
 To swich from a cluster to another you can do it either using the Docker System Tray.
 
@@ -219,9 +221,23 @@ kubectl get deployments
 ```shell
 kubectl get pods
 ```
+We can easily see this if we try to terminate the pod with the following command:
+
+```shell
+kubectl delete pods hello-kubernetes-779db5df9f-227hk
+pod "hello-kubernetes-779db5df9f-227hk" deleted
+ ```
+Now try again to see the list of pods. If you're fast enough, you should see something like this:
+
+```shell
+kubectl get pods
+NAME                        READY   STATUS              RESTARTS   AGE
+hello-kubernetes-cfd4bd475-8mv2x   0/1     ContainerCreating   0          3s
+```
+As you can see, Kubernetes is already creating a new pod. If we try again in a few seconds, we'll see our pod back in the Running status. Can you understand what just happened? The deployment has specified a desired state of a single instance of our webserver application always up & running. As soon as we have killed the pod, Kubernetes has realized that the desired state wasn't respected anymore and, as such, it has created a new one. Smart, isn't it?
 
 ### Create a Service
-By default, the Pod is only accessible by its internal IP address within the Kubernetes cluster. To make the  Container accessible from outside the Kubernetes virtual network, you have to expose the Pod as a Kubernetes Service.
+By default, the Pod is only accessible by its internal IP address within the Kubernetes cluster. To make the container accessible from outside the Kubernetes virtual network, you have to expose the Pod as a Kubernetes Service.
 
 - Expose the Pod to the public internet using the kubectl expose command:
 
@@ -237,12 +253,37 @@ kubectl get services
 ```
 The output is similar to:
 ```shell
-NAME         TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+NAME               TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 hello-kubernetes   LoadBalancer   10.98.98.14     localhost     8080:31099/TCP   7m
 ```
 Since we have specified LoadBalancer as type, Kubernetes will automatically assign an external IP, other than an internal IP, to our application. Since Kubernetes is running on our own machine, the external IP will be the localhost. As such, we can open a browser and type <http://localhost:8080> to see the landing page of the web application displayed:
 
 <img src="images/landing_page.png" width="580px" height="350px"/>
+
+### Scale the application
+What if we want to scale our application up? The nice part of Kubernetes is that, exactly like what happened when we have killed the pod, we don't have to manually take care of creating / deleting the pods. We just need to specify which is the new desired state, by updating the definition of the deployment. For example, let's say that now we want 5 instances of hello-kubernetes to be always up & running. We can use the following command:
+
+kubectl scale deployments webserver --replicas=5
+deployment.extensions/webserver scaled
+Now let's see again the list of available pods:
+
+```shell
+kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+hello-kubernetes-cfd4bd475-8mv2x   1/1     Running   0          17m
+hello-kubernetes-cfd4bd475-jgll4   1/1     Running   0          51s
+hello-kubernetes-cfd4bd475-rjbfq   1/1     Running   0          51s
+hello-kubernetes-cfd4bd475-v7jd4   1/1     Running   0          51s
+hello-kubernetes-cfd4bd475-z9dqt   1/1     Running   0          51s
+```
+Now we have 5 pods up & running: the first one is the original one (you can notice it by the age, it's the oldest one), while the other four have been created as soon as we have updated the definition of the desired state of hello-kubernetes deployment. However, thanks to the service we have previously created, our web application is still exposed through a single endpoint:
+
+```shell
+kubectl get services
+NAME               TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+hello-kubernetes   LoadBalancer   10.101.160.91   localhost     8080:31151/TCP   85m
+kubernetes         ClusterIP      10.96.0.1       <none>        443/TCP          93m
+```
 
 # Step 4 - Deploying the Kubernetes Dashboard Application
 
@@ -280,13 +321,79 @@ The dashboard UI is then displayed
 
  > **Note**: You may be tempted to simply set type: `LoadBalancer` on the dashboard service. Don't do this! This will (usually) make your dashboard accessible to the world. With a well functioning cluster with RBAC this isn't an immediate disaster but it is still not advised. The easiest and most common way to access the dashboard is through `kubectl proxy`. This creates a local web server that securely proxies data to the dashboard through the Kubernetes API server. Read more [here](https://blog.heptio.com/on-securing-the-kubernetes-dashboard-16b09b1b7aca).
 
- # Step 5 - Getting Started with Azure Kubernetes Service (AKS)
+
+# Step 5 - Building a local multi-nodes cluster using VirtualBox and Vagrant
+
+This construction of the vluster is based on a `Vagrantfile` for the provisioning of 3 nodes Kubernetes cluster (1 master and 2 worker nodes) using `VirtualBox` and `Ubuntu 16.04`.
+
+### Prerequisites
+
+You need the following installed to use this playground.
+
+- `Vagrant`, version 2.2 or better.
+- `VirtualBox`, tested with Version 6.0
+- Internet access, this playground pulls Vagrant boxes from the Internet as well
+as installs Ubuntu application packages from the Internet.
+
+### Bringing Up The cluster
+
+To bring up the cluster, change into the directory containing the Vagrantfile `unit-01-understanding K8s architecture\multi-nodes-local-cluster` and `vagrant up` !
+
+```bash
+cd k8s-playground
+vagrant up
+```
+
+Vagrant will start three machines. Each machine will have a NAT-ed network
+interface, through which it can access the Internet, and a `private-network`
+interface in the subnet 192.168.205.0/24. The private network is used for
+intra-cluster communication.
+
+The machines created are:
+
+| NAME | IP ADDRESS | ROLE |
+| --- | --- | --- |
+| k8s-head | `192.168.205.10` | Cluster Master |
+| k8s-node-1 | `192.168.205.11` | Cluster Worker |
+| k8s-node-2 | `192.168.205.12` | Cluster Worker |
+
+As the cluster brought up the cluster master (**k8s-head**) will perform a `kubeadm init` and the cluster workers will perform a `kubeadmin join`.
+
+### Useful Vagrant commands
+
+```bash
+#Create the cluster or start the cluster after a host reboot
+vagrant up
+
+#Execute provision in all the vagrant boxes
+vagrant provision
+
+#Execute provision in the Kubernetes node 1
+vagrant provision k8s-node-1
+
+#Open an ssh connection to the Kubernetes master
+vagrant ssh k8s-head
+
+#Open an ssh connection to the Kubernetes node 1
+vagrant ssh k8s-node-1
+
+#Open an ssh connection to the Kubernetes node 2
+vagrant ssh k8s-node-2
+
+#Stop all Vagrant machines (use vagrant up to start)
+vagrant halt
+
+#Destroy the cluster
+vagrant destroy -f
+```
+
+# Step 6 - Getting Started with Azure Kubernetes Service (AKS)
 
  Azure Kubernetes Service (AKS) makes it simple to deploy a managed Kubernetes cluster in Azure. AKS reduces the complexity and operational overhead of managing Kubernetes by offloading much of that responsibility to Azure. As a hosted Kubernetes service, Azure handles critical tasks like health monitoring and maintenance for you. The Kubernetes masters are managed by Azure. You only manage and maintain the agent nodes. As a managed Kubernetes service, AKS is free - you only pay for the agent nodes within your clusters, not for the masters.
 
- ### Register your Microsoft Azure  Pass
+ ### Register your Microsoft Azure Pass
 
-- Go to <https://www.microsoftazurepass.com/>. Login and redeem your Azure Pass. Your trainer will provide you a sytandard Azure Pass of `50 $` having a duration of `one month`.
+- Go to <https://www.microsoftazurepass.com/>. Login and redeem your Azure Pass.
 
 ### Get started with Azure Kubernets Service (AKS)
 
