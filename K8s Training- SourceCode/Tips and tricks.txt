@@ -1,0 +1,46 @@
+Define an alias for kubectl
+============================
+Windows (https://pascalnaber.wordpress.com/2017/11/09/configure-alias-on-windows-for-kubectl/)
+    
+1. Create a directory in c:\program files\ called k8s
+2. Create a cmd file and save it as alias.cmd in c:\program files\k8s\:
+
+@echo off
+doskey k=kubectl $*
+3. Add an entry to the registry which calls this alias.cmd file everytime when a command window is opened. This can be done with the following file. Save it as addtoregistry.reg:
+
+Windows Registry Editor Version 5.00
+ 
+[HKEY_CURRENT_USER\Software\Microsoft\Command Processor]
+"AutoRun"="c:\\\"Program Files\"\\k8s\\alias.cmd"
+
+
+
+Linux (https://ahmet.im/blog/kubectl-aliases/, https://awesomeopensource.com/project/ahmetb/kubectl-aliases)
+  - In your HOME directory, create a file .kubectl_aliases and initialize it with the following aliases definitions. A complete list is given here : https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases.
+  - edit your .bashrc/.zshrc file with:
+    [ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
+
+ 
+alias k='kubectl'
+
+alias kg='kubectl get'
+
+alias krm='kubectl delete'
+alias krmf='kubectl delete -f'
+     
+alias ka ='kubectl apply -f'
+
+
+    
+    You can directly download the .kubectl_aliases file and save it in your $HOME directory, then edit your .bashrc/.zshrc file with:
+
+   [ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
+
+Linux
+
+
+Check out the logs of the previously terminated container from pod POD_NAME.
+You can use the following command with -p flag
+
+kubectl logs POD_NAME -c CONTAINER_NAME -p
