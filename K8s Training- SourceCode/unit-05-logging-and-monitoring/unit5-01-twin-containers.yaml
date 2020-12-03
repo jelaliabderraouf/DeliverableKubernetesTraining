@@ -7,6 +7,6 @@ metadata:
 spec:
   containers:
     - name: container-a
-      image: chentex/random-logger
+      image: quay.io/mromdhani/random-logger
     - name: container-b
-      image: chentex/random-logger
+      image: quay.io/mromdhani/random-logger

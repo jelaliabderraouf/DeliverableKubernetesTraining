@@ -56,7 +56,7 @@ Let's go through a Deployment and a Service.
           tier: db
       spec:
         containers:
-        - image: mysql:5.6
+        - image: quay.io/mromdhani/mysql:5.6
           name: mysql
           env:          
           - name: MYSQL_ROOT_PASSWORD # Use secret in real usage
@@ -143,7 +143,7 @@ Create the `unit3-02-services-cluster-ip.yaml` file and initialize it as follows
           tier: db  
       spec:
         containers:
-        - image: mysql:5.6
+        - image: quay.io/mromdhani/mysql:5.6
           name: mysql
           env:          
           - name: MYSQL_ROOT_PASSWORD # Use secret in real usage
@@ -186,7 +186,7 @@ mysql-8474c4447c-qzlqx   1/1     Running   0          35m     10.1.1.98    docke
  An easy solution, is to spin up a new Pod within the cluster. This Pod will run  a MySQL Client image in order to connect to one of the MySQL Pods. Run the following command to implement this solution.
 
   ```
-  kubectl run -it --rm --image=mysql:5.6 --restart=Never mysql-client -- mysql -h mysql -ppassword -h 10.1.1.97
+  kubectl run -it --rm --image=quay.io/mromdhani/mysql:5.6 --restart=Never mysql-client -- mysql -h mysql -ppassword -h 10.1.1.97
   If you don't see the prompot press Enter.
   mysql>
   ```
@@ -246,7 +246,7 @@ This is the content of `unit3-03-services-nodeport.yaml`
       spec:
         containers:
         - name: dockercloud
-          image: dockercloud/hello-world
+          image: quay.io/mromdhani/hello-world
           ports:
           - containerPort: 80
   ---
@@ -315,7 +315,7 @@ This is the content of `unit3-04-services-loadbalancer.yaml`
       spec:
         containers:
         - name: dockercloud
-          image: dockercloud/hello-world
+          image: quay.io/mromdhani/hello-world
           ports:
           - containerPort: 80
   ---
@@ -497,7 +497,7 @@ This step walks you through an example of enabling Horizontal Pod Autoscaler for
    
    Now, we will see how the autoscaler reacts to increased load. We will start a container, and send an infinite loop of queries to the php-apache service (please run it in a different terminal):
   ```shell
-  kubectl run -it --rm load-generator --image=busybox /bin/sh
+  kubectl run -it --rm load-generator --image=k8s.gcr.io/busybox
   ```
   Hit enter for command prompt:
   ```shell

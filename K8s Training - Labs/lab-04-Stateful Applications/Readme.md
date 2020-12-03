@@ -384,7 +384,7 @@ In order to deploy MySQL, you will need to mount the Secrets as environment vari
       spec:
         containers:
         - name: mysql
-          image: mysql:8.0
+          image: quay.io/mromdhani/mysql:8.0
           ports:
           - containerPort: 3306
             protocol: TCP
@@ -656,7 +656,7 @@ The following YAMLmanifest (`unit3-03-pod-with-pvc.yaml`) describes a Pod using 
   spec:
     containers:
     - name: nginx
-      image: nginx
+      image: quay.io/mromdhani/nginx:latest
       volumeMounts:
       - name: nginx-data
         mountPath: /data/nginx
@@ -819,7 +819,7 @@ Pods in a StatefulSet have a unique ordinal index and a stable network identity.
   Use `kubectl run` to execute a container that provides the `nslookup` command from the `dnsutils` package. Using `nslookup` on the Pods' hostnames, you can examine their in-cluster DNS addresses.
 
   ```shell
-  kubectl run -i --tty --image busybox:1.28 dns-test --restart=Never --rm  nslookup web-0.nginx
+  kubectl run -i --tty --image quay.io/mromdhani/busybox:1.28 dns-test --restart=Never --rm  nslookup web-0.nginx
   Server:    10.96.0.10
   Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local
 
@@ -829,7 +829,7 @@ Pods in a StatefulSet have a unique ordinal index and a stable network identity.
 
   The CNAME of the headless service points to SRV records (one for each Pod that is Running and Ready). The SRV records point to A record entries that contain the Pods’ IP addresses.
   ```shell
-  kubectl run -i --tty --image busybox:1.28 dns-test --restart=Never --rm  nslookup nginx
+  kubectl run -i --tty --image quay.io/mromdhani/busybox:1.28 dns-test --restart=Never --rm  nslookup nginx
   Server:    10.96.0.10
   Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local
 
@@ -863,7 +863,7 @@ Pods in a StatefulSet have a unique ordinal index and a stable network identity.
     web-2
   ```
   ```shell
-  kubectl run -i --tty --image busybox:1.28 dns-test --restart=Never --rm sh 
+  kubectl run -i --tty --image quay.io/mromdhani/busybox:1.28 dns-test --restart=Never --rm sh 
   / # nslookup web-0.nginx
   Server:    10.96.0.10
   Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local

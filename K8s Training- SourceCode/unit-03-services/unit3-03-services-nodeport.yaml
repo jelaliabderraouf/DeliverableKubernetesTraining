@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: dockercloud
-        image: dockercloud/hello-world
+        image: quay.io/mromdhani/hello-world
         ports:
         - containerPort: 80
 ---

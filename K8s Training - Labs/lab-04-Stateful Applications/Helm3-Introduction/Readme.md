@@ -71,7 +71,7 @@ Charts are the packaging format used in Helm. A Chart is a collection of multipl
 You can initialize the Helm chart repository with the official Helm chart repository or with any other repository by adding various Helm chart repository available:
 
 ```shell
-$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+$ helm repo add stable https://charts.helm.sh/stable
 ```
 
 You can update the above repo for changes by using:

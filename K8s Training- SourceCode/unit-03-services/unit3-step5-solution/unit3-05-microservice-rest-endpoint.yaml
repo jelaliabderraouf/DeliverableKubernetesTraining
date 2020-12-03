@@ -24,7 +24,7 @@ spec:
         app: rest
     spec:
       containers:
-      - image:  mromdhani/springboot-microservice:1
+      - image:  quay.io/mromdhani/springboot-microservice:1
         name: rest
         env:
           # Use secret in real usage

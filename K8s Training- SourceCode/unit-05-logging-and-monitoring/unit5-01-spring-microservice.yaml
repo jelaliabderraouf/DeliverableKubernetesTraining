@@ -30,7 +30,7 @@ spec:
         env:
         - name: JAVA_OPTS
           value: -Xmx256m -Xms256m
-        image: mromdhani/my-monitoring-app:1.0
+        image: quay.io/mromdhani/my-monitoring-app:1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 7070

@@ -15,7 +15,7 @@ spec:
         tier: db  # Line 15
     spec:
       containers:
-      - image: mysql:5.6
+      - image: quay.io/mromdhani/mysql:5.6
         name: mysql
         env:          
         - name: MYSQL_ROOT_PASSWORD # Use secret in real usage

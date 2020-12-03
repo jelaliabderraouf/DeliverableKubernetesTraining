@@ -16,7 +16,7 @@
     - [Installing Prometheus with Helm 3](#installing-prometheus-with-helm-3)
     - [Using Prometheus](#using-prometheus)
 - [Step 4- Monitoring with Prometheus and Grafana](#step-4--monitoring-with-prometheus-and-grafana)
-    - [What is Grafana  ?](#what-is-grafana-)
+    - [What is Grafana  ?](#what-is-grafana--)
     - [Installing Grafana with Helm 3](#installing-grafana-with-helm-3)
     - [Configuring and Using Grafana with Prometheus](#configuring-and-using-grafana-with-prometheus)
 - [Step 5- Monitoring Spring Boot Applications with Prometheus and Grafana](#step-5--monitoring-spring-boot-applications-with-prometheus-and-grafana)
@@ -41,7 +41,7 @@ Let'start a small application that continuously generates log events.
   > Many thanks to _Vicente Zepeda_ for providing this beautiful simple container `random-logger`. The source code is here:<https://github.com/chentex/random-logger>. This application simply streams logs to stdout with a shell script [echo statement](https://github.com/chentex/random-logger/blob/master/entrypoint.sh). 
 - Run the **random-logger** container in a Pod to start generating continuously random logging events
 ```shell
-kubectl create deployment random-logger --image=chentex/random-logger
+kubectl create deployment random-logger --image=quay.io/mromdhani/random-logger
 ```
 - Scale to three Pods.
   ```shell
@@ -85,7 +85,7 @@ kubectl create deployment random-logger --image=chentex/random-logger
   When there is one container in a Pod the log command can't assume to deliver the log from a single container. To see the log from a specific container in a Pod the `-container=<name> | -c=<name>` switch can be used.
   - Start a Pod with two containers.
   ```shell
-  kubectl create -f unit4-01-twin-containers.yaml
+  kubectl create -f unit5-01-twin-containers.yaml
   ```
   - Try to add a specific container name of the log stream you wish to inspect.
   ```shell
@@ -111,7 +111,7 @@ kubectl create deployment random-logger --image=chentex/random-logger
 
 ### Viewing Cluster Events
 
-Events capture all transitions (Create/Retrivieve/Update/Delete) for the cluster objects during their lifecycles. These events are the journal of changes to the cluster, on the control plane. They are stored in etcd and managed by Kubernetes. Kubernetes administrators are interested in these log details to gain insights into cluster resource events.
+Events capture all transitions (Create/Retrieve/Update/Delete) for the cluster objects during their lifecycles. These events are the journal of changes to the cluster, on the control plane. They are stored in etcd and managed by Kubernetes. Kubernetes administrators are interested in these log details to gain insights into cluster resource events.
 
 - View the current namespace events
   
@@ -150,13 +150,12 @@ Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters.
 -  You can use Dashboard to deploy containerized applications to a Kubernetes cluster, troubleshoot your containerized application, and manage the cluster resources. 
 
 
-
 ### Deploying the Dashboard UI 
 
 The Dashboard UI is not deployed by default. To deploy it, run the following command:
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml  // A local version of the manifest is available in the file unit-05-logging-and-monitoring/dashboard-2.0.0.yaml 
 ```
 
 ### Accessing the Dashboard UI 
@@ -192,7 +191,7 @@ The following instructions are for the manual installation approach.
 1. Clone or download the release branch of Metrics Server project. Here is the link : <https://codeload.github.com/kubernetes-sigs/metrics-server/zip/release-0.3>. You can also use the provided version for metrics version. 
 
 2. Open the `deploy/1.8+/metrics-server-deployment.yaml` file in an editor and perform the following changes.
-   If you are using the provided version, the configuration required here is already done. Skip to 3.    
+   If you are using the provided version (in the folder `Metrics-Server-Configured`), the configuration required here is already done. Skip to 3.    
 
     - Change the image as follows:
     ```shell
@@ -209,9 +208,13 @@ The following instructions are for the manual installation approach.
     ```shell
     kubectl create -f deploy/1.8+/
     ```
-4. You should now be able to run kubectl `top` commands!
+4. Check that the metrics server is installed.
     ```shell
     kubectl get pods -n kube-system
+
+4. You should now be able to run kubectl `top` commands!
+    ```shell
+    kubectl top nodes
     ```
 5. Refresh the Kubernetes Dashboard, you will now see the metrics.
     <img src="images/dashboard_metrics.png" width="840px" height="520px"/>
@@ -258,7 +261,7 @@ kubectl create ns monitoring
 ```
 - Add the charts repository to helm and update the repo.
   ```shell
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo add stable https://charts.helm.sh/stable
 helm repo update
 ```
 - Install the latest stable chart of prometheus within the `monitoring` namespace
@@ -378,11 +381,11 @@ The microservice uses `Micrometer` utility in order to exposes `/actuator/metric
     <artifactId>micrometer-registry-prometheus</artifactId>
 </dependency>
 ```
-The docker image of the microservice is available on DockerHub. This is its tag `mromdhani/my-monitoring-app:1.0`
+The docker image of the microservice is available on DockerHub. This is its tag `quay.io/mromdhani/my-monitoring-app:1.0`
 
 - Let's start the microservice using docker and  test quickly the actuator endpoints:
   ```
-  docker docker run -p 8080:7070 mromdhani/my-monitoring-app:1.0
+  docker docker run -p 8080:7070 quay.io/mromdhani/my-monitoring-app:1.0
   ```
   To check, let's navigate our browser to http://localhost:8080/actuator:
 
@@ -436,7 +439,7 @@ The docker image of the microservice is available on DockerHub. This is its tag 
             env:
             - name: JAVA_OPTS
               value: -Xmx256m -Xms256m
-            image: mromdhani/my-monitoring-app:1.0
+            image: quay.io/mromdhani/my-monitoring-app:1.0
             imagePullPolicy: IfNotPresent
             ports:
             - containerPort: 7070
@@ -496,7 +499,7 @@ Input the URL for the dashboard, select "Already created Prometheus datasource" 
 ![grafana](images/grafanafinaldasboard.png)
 
 
-**HOW-TO Install Metrics-Server using Helm 3**
+** ASIDE : HOW-TO Install Metrics-Server using Helm 3**
 
 - If Metric-server is not installed, the followin top doaes not work. we will recheck it once Metrics-server is installed.
   
@@ -506,7 +509,7 @@ Input the URL for the dashboard, select "Already created Prometheus datasource" 
 - Add Kubernetes charts repo to the local repos
    
   ```shell
-  helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+  helm repo add stable https://charts.helm.sh/stable
   helm repo update
   ```
 
